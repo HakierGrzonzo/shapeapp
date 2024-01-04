@@ -1,3 +1,4 @@
+#include "drawer.hpp"
 #include <SFML/Graphics/Color.hpp>
 #include <SFML/Graphics/Image.hpp>
 #include <SFML/Graphics/RectangleShape.hpp>
@@ -43,14 +44,7 @@ long scoreImage(sf::Image img) {
 }
 
 
-struct Candidate {
-  sf::Vector2f position;
-  sf::Vector2f size;
-  float rotation;
-  long score = 0;
-};
-
-void DrawCandidate(Candidate member, sf::RenderTexture* target) {
+void DrawCandidate(ShapeSpec member, sf::RenderTexture* target) {
     auto shape = sf::RectangleShape();
     shape.setFillColor(sf::Color().Black);
     shape.setSize(member.size);
@@ -66,9 +60,8 @@ int main() {
   if (!result.create(size, size)) {
     return -1;
   }
-  sf::Texture badApple;
-  badApple.setSmooth(false);
-  if (!badApple.loadFromFile("./frames/000996.bmp")) {
+  sf::Image badApple;
+  if (!badApple.loadFromFile("/home/hakiergrzonzo/Pictures/wallpapers/lake.png")) {
     return -1;
   }
 
@@ -81,18 +74,26 @@ int main() {
   }
   target.setSmooth(false);
 
-  for (int iteration = 0; iteration < 10; iteration++) {
+  auto drawer = Drawer(badApple);
+  auto size = badApple.getSize();
+  for (int iteration = 0; iteration < 1024; iteration++) {
     std::cout << iteration << std::endl;
     // init population
-    Candidate population[popSize];
+    ShapeSpec population[popSize];
     for (int i = 0; i < popSize; i++) {
       population[i] = {
-        sf::Vector2f(rand() % size, rand() % size),
-        sf::Vector2f(rand() % size / 20.0, rand() % size / 20.0),
+        sf::Vector2f(rand() % size.x, rand() % size.y),
+        sf::Vector2f(rand() % size.x / 20.0, rand() % size.y / 20.0),
         rand() % 1024 / 2.0f,
       };
     }
 
+    for (int i = 0; i < popSize; i++) {
+      drawer.addNewShape(population[i]);
+    }
+    auto resultTexture = drawer.currentTexture();
+    
+    /*
     for (int i = 0; i < popSize; i++) {
       target.clear(sf::Color::White);
       auto member = population[i];
@@ -114,6 +115,7 @@ int main() {
     DrawCandidate(best[0], &result);
     result.display();
     auto resultTexture = result.getTexture();
+    */
     auto img = resultTexture.copyToImage();
     img.saveToFile("./res.bmp");
   }

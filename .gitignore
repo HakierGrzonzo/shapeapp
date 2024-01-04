@@ -1,3 +1,4 @@
-./shapeapp
+shapeapp
 *.bmp
 ./bad-apple.webm
+*.o
