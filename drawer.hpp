@@ -12,6 +12,7 @@ struct ShapeSpec {
   sf::Vector2f position;
   sf::Vector2f size;
   float rotation;
+  float opacity;
   long score = 0;
 };
 
@@ -28,4 +29,5 @@ class Drawer {
     sf::Texture targetTexture;
     sf::RectangleShape shape;
     sf::Shader colorShader;
+    void drawShape(ShapeSpec shape);
 };

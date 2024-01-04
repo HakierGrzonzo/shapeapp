@@ -22,6 +22,7 @@ void Optimizer::initPopulation() {
         sf::Vector2f(rand() % size.x, rand() % size.y),
         sf::Vector2f(rand() % size.x, rand() % size.y),
         (float) (rand() % 360),
+        (rand() % 100) / 100.0f,
       };
       element.score = this->scorer.score(element);
       this->population.push_back(element);
@@ -34,7 +35,7 @@ struct ABC {
   int c;
 };
 
-const int diemensionality = 5;
+const int diemensionality = 6;
 struct ShapeSpecArray {
   float values[diemensionality];
 };
@@ -54,6 +55,7 @@ ShapeSpecArray toArray(ShapeSpec original) {
     original.position.x,
     original.position.y,
     original.rotation,
+    original.opacity,
   };
   return r;
 }
@@ -65,6 +67,7 @@ ShapeSpec fromArray(ShapeSpecArray original) {
   result.position.x = original.values[2];
   result.position.y = original.values[3];
   result.rotation = original.values[4];
+  result.opacity = original.values[5];
   return result;
 }
 

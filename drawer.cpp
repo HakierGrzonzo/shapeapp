@@ -17,15 +17,20 @@ void Drawer::addNewShape(ShapeSpec newShape) {
   this->shapes.push_back(newShape);
 }
 
-sf::Texture Drawer::currentTexture() {
-  this->renderTexture.clear(sf::Color::Transparent);
-  for (auto shape : this->shapes) {
+void Drawer::drawShape(ShapeSpec shape) {
     this->shape.setSize(shape.size);
     this->shape.setPosition(shape.position);
     this->colorShader.setUniform("position", shape.position);
     this->colorShader.setUniform("size", sf::Vector2f(this->targetTexture.getSize()));
+    this->colorShader.setUniform("opacity", shape.opacity);
     this->shape.setRotation(shape.rotation);
     this->renderTexture.draw(this->shape, &this->colorShader);
+}
+
+sf::Texture Drawer::currentTexture() {
+  this->renderTexture.clear(sf::Color::Transparent);
+  for (auto shape : this->shapes) {
+    this->drawShape(shape);
   }
   this->renderTexture.display();
   return this->renderTexture.getTexture();
@@ -34,19 +39,9 @@ sf::Texture Drawer::currentTexture() {
 sf::Texture Drawer::textureWithNewShape(ShapeSpec newShape) {
   this->renderTexture.clear(sf::Color::Transparent);
   for (auto shape : this->shapes) {
-    this->shape.setSize(shape.size);
-    this->shape.setPosition(shape.position);
-    this->colorShader.setUniform("position", shape.position);
-    this->colorShader.setUniform("size", sf::Vector2f(this->targetTexture.getSize()));
-    this->shape.setRotation(shape.rotation);
-    this->renderTexture.draw(this->shape, &this->colorShader);
+    this->drawShape(shape);
   }
-  this->shape.setSize(newShape.size);
-  this->shape.setPosition(newShape.position);
-  this->colorShader.setUniform("position", newShape.position);
-  this->colorShader.setUniform("size", sf::Vector2f(this->targetTexture.getSize()));
-  this->shape.setRotation(newShape.rotation);
-  this->renderTexture.draw(this->shape, &this->colorShader);
+  this->drawShape(newShape);
   this->renderTexture.display();
   return this->renderTexture.getTexture();
 }

@@ -64,11 +64,10 @@ int main(int argc, char** argv) {
   }
 
   Scorer scorer(badApple);
-  Optimizer optimizer(scorer, 50, badApple.getSize());
+  Optimizer optimizer(scorer, 60, badApple.getSize());
   long oldScore = optimizer.getBest().score;
   int maxIterations = 10;
   while (true) {
-    std::cout << std::endl;
     for (int i = 0; i < maxIterations; i++) {
       optimizer.initPopulation();
       optimizer.doIteration();
@@ -76,10 +75,11 @@ int main(int argc, char** argv) {
       std::cout.flush();
     }
     auto best = optimizer.getBest();
+    std::cout << oldScore - best.score << std::endl;
     if (oldScore > best.score) {
       scorer.drawer.addNewShape(best);
       scorer.drawer.currentTexture().copyToImage().saveToFile("./res.bmp");
-      std::system("viu res.bmp");
+      //std::system("viu res.bmp");
       oldScore = best.score;
       if (maxIterations > 3) {
         maxIterations -= 1;
