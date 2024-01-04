@@ -30,3 +30,23 @@ sf::Texture Drawer::currentTexture() {
   this->renderTexture.display();
   return this->renderTexture.getTexture();
 }
+
+sf::Texture Drawer::textureWithNewShape(ShapeSpec newShape) {
+  this->renderTexture.clear(sf::Color::Transparent);
+  for (auto shape : this->shapes) {
+    this->shape.setSize(shape.size);
+    this->shape.setPosition(shape.position);
+    this->colorShader.setUniform("position", shape.position);
+    this->colorShader.setUniform("size", sf::Vector2f(this->targetTexture.getSize()));
+    this->shape.setRotation(shape.rotation);
+    this->renderTexture.draw(this->shape, &this->colorShader);
+  }
+  this->shape.setSize(newShape.size);
+  this->shape.setPosition(newShape.position);
+  this->colorShader.setUniform("position", newShape.position);
+  this->colorShader.setUniform("size", sf::Vector2f(this->targetTexture.getSize()));
+  this->shape.setRotation(newShape.rotation);
+  this->renderTexture.draw(this->shape, &this->colorShader);
+  this->renderTexture.display();
+  return this->renderTexture.getTexture();
+}

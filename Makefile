@@ -4,9 +4,9 @@ run: shapeapp
 	./shapeapp
 
 shapeapp: $(O_FILES)
-	g++ -O2 -g -lsfml-graphics -lsfml-window -lsfml-system main.o drawer.o -o shapeapp
+	g++ -O3 -ggdb -lsfml-graphics -lsfml-window -lsfml-system $(O_FILES) -o shapeapp
 
 %.o: %.cpp
-	g++ -c $<
+	g++ -O3 -ggdb  -c $<
 
 

@@ -1,4 +1,6 @@
 #include "drawer.hpp"
+#include "optimizer.hpp"
+#include "scorer.hpp"
 #include <SFML/Graphics/Color.hpp>
 #include <SFML/Graphics/Image.hpp>
 #include <SFML/Graphics/RectangleShape.hpp>
@@ -10,6 +12,7 @@
 #include <cstdlib>
 #include <iostream>
 #include <ostream>
+#include <string>
 #include <vector>
 
 const int size = 1024;
@@ -44,16 +47,11 @@ long scoreImage(sf::Image img) {
 }
 
 
-void DrawCandidate(ShapeSpec member, sf::RenderTexture* target) {
-    auto shape = sf::RectangleShape();
-    shape.setFillColor(sf::Color().Black);
-    shape.setSize(member.size);
-    shape.setPosition(member.position);
-    shape.setRotation(member.rotation);
-    target->draw(shape);
-}
-
-int main() {
+int main(int argc, char** argv) {
+  if (argc != 2) {
+    return -1;
+  }
+  std::string filepath(argv[1]);
   srand(time(NULL));
   shader.loadFromFile("./diffshader.glsl", sf::Shader::Fragment);
   sf::RenderTexture result;
@@ -61,62 +59,33 @@ int main() {
     return -1;
   }
   sf::Image badApple;
-  if (!badApple.loadFromFile("/home/hakiergrzonzo/Pictures/wallpapers/lake.png")) {
+  if (!badApple.loadFromFile(filepath)) {
     return -1;
   }
 
-  result.clear(sf::Color().White);
-  result.setSmooth(false);
-
-  sf::RenderTexture target;
-  if (!target.create(size, size)) {
-    return -1;
-  }
-  target.setSmooth(false);
-
-  auto drawer = Drawer(badApple);
-  auto size = badApple.getSize();
-  for (int iteration = 0; iteration < 1024; iteration++) {
-    std::cout << iteration << std::endl;
-    // init population
-    ShapeSpec population[popSize];
-    for (int i = 0; i < popSize; i++) {
-      population[i] = {
-        sf::Vector2f(rand() % size.x, rand() % size.y),
-        sf::Vector2f(rand() % size.x / 20.0, rand() % size.y / 20.0),
-        rand() % 1024 / 2.0f,
-      };
+  Scorer scorer(badApple);
+  Optimizer optimizer(scorer, 50, badApple.getSize());
+  long oldScore = optimizer.getBest().score;
+  int maxIterations = 10;
+  while (true) {
+    std::cout << std::endl;
+    for (int i = 0; i < maxIterations; i++) {
+      optimizer.initPopulation();
+      optimizer.doIteration();
+      std::cout << i << '\r';
+      std::cout.flush();
     }
-
-    for (int i = 0; i < popSize; i++) {
-      drawer.addNewShape(population[i]);
-    }
-    auto resultTexture = drawer.currentTexture();
-    
-    /*
-    for (int i = 0; i < popSize; i++) {
-      target.clear(sf::Color::White);
-      auto member = population[i];
-      DrawCandidate(member, &target);
-      target.display();
-      auto texture = target.getTexture();
-      target.clear(sf::Color::Black);
-      auto score = scoreImage(diffTextures(texture, badApple, &target));
-      population[i].score = score;
-    }
-
-    Candidate* best = population;
-    for (int i = 1; i < popSize; i++) {
-      auto member = population[i];
-      if (best->score > member.score) {
-        best = &population[i];
+    auto best = optimizer.getBest();
+    if (oldScore > best.score) {
+      scorer.drawer.addNewShape(best);
+      scorer.drawer.currentTexture().copyToImage().saveToFile("./res.bmp");
+      std::system("viu res.bmp");
+      oldScore = best.score;
+      if (maxIterations > 3) {
+        maxIterations -= 1;
       }
+    } else {
+      maxIterations += 10;
     }
-    DrawCandidate(best[0], &result);
-    result.display();
-    auto resultTexture = result.getTexture();
-    */
-    auto img = resultTexture.copyToImage();
-    img.saveToFile("./res.bmp");
   }
 }
