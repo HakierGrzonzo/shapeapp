@@ -10,5 +10,6 @@ void main() {
   } else {
     diff.r = (diff.r + diff.g + diff.b) / 3.0;
   }
-  gl_FragColor = gl_Color * vec4(diff, 1.0);
+  diff.r = diff.r * ((1.0 - currentPixel.a) / 2.0 + 0.5);
+  gl_FragColor = gl_Color * vec4(vec3(diff.r), 1.0);
 }

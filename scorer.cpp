@@ -2,14 +2,15 @@
 #include "drawer.hpp"
 #include <SFML/Graphics/Image.hpp>
 
+const int size = 512;
+
 Scorer::Scorer(sf::Image target) : drawer(target) {
   this->target.loadFromImage(target);
   this->diffshader.loadFromFile("./diffshader.glsl", sf::Shader::Fragment);
   this->diffshader.setUniform("goal", this->target);
-  auto targetImageSize = target.getSize() / 2u;
-  this->renderer.create(targetImageSize.x, targetImageSize.y);
+  this->renderer.create(size, size);
   this->shape.setPosition(0, 0);
-  this->shape.setSize(sf::Vector2f(targetImageSize.x, targetImageSize.y));
+  this->shape.setSize(sf::Vector2f(size, size));
 }
 
 float Scorer::score(ShapeSpec shape) {

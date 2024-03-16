@@ -23,11 +23,16 @@ class Drawer {
     sf::Texture textureWithNewShape(ShapeSpec newShape);
     void addNewShape(ShapeSpec newShape);
     sf::Texture currentTexture();
+    unsigned int size();
   private:
+    bool dirty = true;
     std::vector<ShapeSpec> shapes;
     sf::RenderTexture renderTexture;
     sf::Texture targetTexture;
+    sf::Texture cachedTexture;
     sf::RectangleShape shape;
+    sf::RectangleShape background;
     sf::Shader colorShader;
     void drawShape(ShapeSpec shape);
+    void drawCache();
 };

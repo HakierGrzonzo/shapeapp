@@ -20,7 +20,7 @@ void Optimizer::initPopulation() {
   for (int i = 0; i < this->populationSize; i++ ) {
       ShapeSpec element = {
         sf::Vector2f(rand() % size.x, rand() % size.y),
-        sf::Vector2f(rand() % size.x, rand() % size.y),
+        sf::Vector2f(rand() % size.x, rand() % size.y) / 2.0f,
         (float) (rand() % 360),
         (rand() % 100) / 100.0f,
       };
