@@ -13,45 +13,22 @@
 #include <iostream>
 #include <ostream>
 #include <string>
-#include <vector>
+
+#define MAX_ITER 60 
+#define MIN_ITER 20
+#define TARGET_SCORE_DIFF 500
 
 const int size = 1024;
-const int popSize = 512;
+const int popSize = 80;
 
 sf::Shader shader;
 
-sf::Image diffTextures(sf::Texture& a, sf::Texture& goal, sf::RenderTexture* target) {
-  sf::RectangleShape shape;
-  shape.setPosition(0, 0);
-  shape.setSize(sf::Vector2f(size, size));
-  shader.setUniform("a", a);
-  shader.setUniform("b", goal);
-  shape.setTexture(&a);
-  target->draw(shape, &shader);
-  target->display();
-
-  auto texture = target->getTexture();
-  auto image = texture.copyToImage();
-  return image;
-}
-
-long scoreImage(sf::Image img) {
-  auto ptr = img.getPixelsPtr();
-  auto size = img.getSize();
-  long sum = 0;
-  for (long i = 0; i < size.x * size.y * 4; i += 4) {
-    auto value = ptr[i];
-    sum += value;
-  }
-  return sum;
-}
-
-
 int main(int argc, char** argv) {
-  if (argc != 2) {
+  if (argc != 3) {
     return -1;
   }
   std::string filepath(argv[1]);
+  std::string resultpath(argv[2]);
   srand(time(NULL));
   shader.loadFromFile("./diffshader.glsl", sf::Shader::Fragment);
   sf::RenderTexture result;
@@ -64,10 +41,10 @@ int main(int argc, char** argv) {
   }
 
   Scorer scorer(badApple);
-  Optimizer optimizer(scorer, 60, badApple.getSize());
+  Optimizer optimizer(scorer, popSize, badApple.getSize());
   long oldScore = optimizer.getBest().score;
-  int maxIterations = 10;
-  while (maxIterations < 60) {
+  int maxIterations = 10 + MIN_ITER;
+  while (maxIterations < MAX_ITER) {
     for (int i = 0; i < maxIterations; i++) {
       optimizer.initPopulation();
       optimizer.doIteration();
@@ -80,7 +57,7 @@ int main(int argc, char** argv) {
     if (scoreDiff > 0) {
       scorer.drawer.addNewShape(best);
       oldScore = best.score;
-      if (maxIterations >= 5 && scoreDiff > 3000) {
+      if (maxIterations >= MIN_ITER && scoreDiff > TARGET_SCORE_DIFF) {
         maxIterations -= 1;
       } else {
         maxIterations += 1;
@@ -90,5 +67,5 @@ int main(int argc, char** argv) {
     }
   }
   std::cout << "Used " << scorer.drawer.size() << " shapes" << std::endl;
-  scorer.drawer.currentTexture().copyToImage().saveToFile("./res.bmp");
+  scorer.drawer.currentTexture().copyToImage().saveToFile(resultpath);
 }
