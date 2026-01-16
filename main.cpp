@@ -25,7 +25,7 @@ sf::Shader shader;
 
 int main(int argc, char** argv) {
   if (argc != 3) {
-    return -1;
+    return 1;
   }
   std::string filepath(argv[1]);
   std::string resultpath(argv[2]);
@@ -33,11 +33,11 @@ int main(int argc, char** argv) {
   shader.loadFromFile("./diffshader.glsl", sf::Shader::Fragment);
   sf::RenderTexture result;
   if (!result.create(size, size)) {
-    return -1;
+    return 1;
   }
   sf::Image badApple;
   if (!badApple.loadFromFile(filepath)) {
-    return -1;
+    return 1;
   }
 
   Scorer scorer(badApple);
